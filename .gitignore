@@ -20,3 +20,6 @@ embeddings/*.npy
 # OS
 Thumbs.db
 desktop.ini
+
+# stray browser-tool artifacts
+.playwright-mcp/
