@@ -49,6 +49,8 @@ def harvest(scope: dict, settings, sources: list[str] | None = None,
         "single_source_documents": src_membership.get(1, 0),
         "documents_with_oa_pdf": sum(1 for d in docs if d.get("oa_pdf_url")),
         "documents_with_abstract": sum(1 for d in docs if d.get("abstract")),
+        # F3 honesty: connectors that errored (quota/auth/persistent-429) — recall may be truncated
+        "source_errors": {n: v["error"] for n, v in per_source.items() if "error" in v},
         "citation_edges_openalex": edges_raw,
     }
     return docs, manifest

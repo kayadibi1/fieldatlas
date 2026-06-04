@@ -12,7 +12,14 @@ con = db.connect()
 run_id = con.execute("SELECT run_id FROM runs ORDER BY started_at DESC LIMIT 1").fetchone()[0]
 con.close()
 
-extractions = json.loads((WORK_DIR / "extractions_raw.json").read_text(encoding="utf-8"))
+try:
+    extractions = json.loads((WORK_DIR / "extractions_raw.json").read_text(encoding="utf-8"))
+except (OSError, json.JSONDecodeError) as e:
+    print(f"ERROR reading work/extractions_raw.json: {e}")
+    sys.exit(1)
+if not isinstance(extractions, list):
+    print("ERROR: extractions_raw.json must be a JSON array of extractions")
+    sys.exit(1)
 out = ingest_all(extractions, run_id)
 print(json.dumps(out["summary"], indent=2))
 for r in out["results"]:

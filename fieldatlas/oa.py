@@ -73,32 +73,43 @@ def _s2_oa_pdf(ids: dict, key: str | None) -> str | None:
     return (j.get("openAccessPdf") or {}).get("url")
 
 
-def candidate_pdf_urls(doc: dict, settings) -> list[tuple[str, str]]:
-    """Return ordered (via, url) PDF candidates from all OA sources, de-duplicated."""
-    ids = doc.get("external_ids", {})
+def _dedup(pairs):
     out, seen = [], set()
-
-    def add(via, url):
+    for via, url in pairs:
         if url and url not in seen:
             seen.add(url)
             out.append((via, url))
+    return out
 
+
+def cheap_pdf_urls(doc: dict) -> list[tuple[str, str]]:
+    """No-network PDF candidates: arXiv (incl. arXiv-DOIs) + any already-known OA URL."""
+    ids = doc.get("external_ids", {})
+    pairs = []
     axid = ids.get("arxiv") or _arxiv_from_doi(ids.get("doi"))
     if axid:
-        add("arxiv", f"https://arxiv.org/pdf/{axid}.pdf")
-    add("oa_url", doc.get("oa_pdf_url"))
+        pairs.append(("arxiv", f"https://arxiv.org/pdf/{axid}.pdf"))
+    pairs.append(("oa_url", doc.get("oa_pdf_url")))
+    return _dedup(pairs)
 
-    doi = ids.get("doi")
+
+def networked_pdf_urls(doc: dict, settings) -> list[tuple[str, str]]:
+    """Networked OA locators (only call when the cheap candidates fail to download)."""
+    ids = doc.get("external_ids", {})
+    pairs, doi = [], ids.get("doi")
     if doi:
-        for u in _unpaywall_locations(doi, settings.contact_email):
-            add("unpaywall", u)
+        pairs += [("unpaywall", u) for u in _unpaywall_locations(doi, settings.contact_email)]
     oaid = ids.get("openalex")
     if oaid or doi:
-        for u in _openalex_locations(oaid or f"doi:{doi}", settings.openalex_api_key):
-            add("openalex_loc", u)
+        pairs += [("openalex_loc", u) for u in _openalex_locations(oaid or f"doi:{doi}", settings.openalex_api_key)]
     # S2 OA lookup only with a key — the keyless pool 429-storms on bulk acquisition
     if settings.semantic_scholar_api_key:
         s2u = _s2_oa_pdf(ids, settings.semantic_scholar_api_key)
         if s2u:
-            add("s2_oa", s2u)
-    return out
+            pairs.append(("s2_oa", s2u))
+    return _dedup(pairs)
+
+
+def candidate_pdf_urls(doc: dict, settings) -> list[tuple[str, str]]:
+    """All candidates (cheap first, then networked) — for callers that want the full list."""
+    return cheap_pdf_urls(doc) + networked_pdf_urls(doc, settings)

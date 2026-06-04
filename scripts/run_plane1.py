@@ -1,8 +1,11 @@
 """Run the deterministic Plane-1 pipeline. Usage:
-   .venv/Scripts/python scripts/run_plane1.py [per_query_limit] [max_acquire]
+   .venv/Scripts/python scripts/run_plane1.py [per_query_limit] [max_acquire] [sources_csv]
+   sources_csv defaults to openalex,crossref,core. Honors $FIELDATLAS_SCOPE / $FIELDATLAS_DB.
 """
 import json
 import sys
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows console is cp1252
 
 sys.path.insert(0, ".")
 from fieldatlas.config import load_scope, settings

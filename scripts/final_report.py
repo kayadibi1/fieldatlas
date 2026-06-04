@@ -60,5 +60,8 @@ L = [f"# FieldAtlas Run Report — {run_id}", "",
      "- Items with no obtainable OA full text are NOT-READ and contribute no deep claims (shown above).",
      "- Shadow-library sources excluded by design; OA coverage via arXiv/CORE/Unpaywall only.",
      ]
+if h.get("source_errors"):
+    L.append(f"- ⚠ **Harvest warnings** — sources that errored (recall may be truncated, "
+             f"NOT-READ may be understated): `{json.dumps(h.get('source_errors'))}`")
 (ARTIFACTS_DIR / "RUN_REPORT.md").write_text("\n".join(L), encoding="utf-8")
 print("\n".join(L))

@@ -41,6 +41,9 @@ elif ":" in raw_id:
 cid = cid or raw_id
 
 dest = PDF_DIR / f"{safe_name(cid)}.pdf"
+if PDF_DIR.resolve() not in dest.resolve().parents:   # belt-and-suspenders vs path traversal
+    print("ERROR: unsafe destination path")
+    sys.exit(1)
 shutil.copyfile(src, dest)
 p = parse_pdf(str(dest), cid, safe_name(cid))
 if p["parse_status"] != "parsed":

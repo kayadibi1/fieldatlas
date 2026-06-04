@@ -1,6 +1,7 @@
 """Live smoke test of API keys + key deps. Run: .venv/Scripts/python scripts/smoke_keys.py"""
 import sys
 sys.path.insert(0, ".")
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows console is cp1252
 
 from fieldatlas.config import settings
 from fieldatlas.connectors.http import get

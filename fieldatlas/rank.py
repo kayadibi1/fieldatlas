@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 
 import numpy as np
 
+from .connectors.base import norm_arxiv, norm_doi
+
 _MODEL = None
 
 
@@ -79,6 +81,15 @@ def assign_tiers(ranked: list[dict], scope: dict) -> dict:
              and d["relevance"] >= thresh * 0.8][:fresh_quota]
     for d in fresh:
         tier1_ids.add(d["canonical_id"])
+
+    # seed_corpus: central papers are always deep-read (Tier-1) if present in the harvest
+    seed = scope.get("seed_corpus", {}) or {}
+    seed_arxiv = {norm_arxiv(x) for x in seed.get("arxiv_ids", [])}
+    seed_doi = {norm_doi(x) for x in seed.get("dois", [])}
+    for d in ranked:
+        ids = d.get("external_ids", {})
+        if ids.get("arxiv") in seed_arxiv or ids.get("doi") in seed_doi:
+            tier1_ids.add(d["canonical_id"])
 
     rest = [d for d in ranked if d["canonical_id"] not in tier1_ids]
     tier2 = rest[:tier2_band]

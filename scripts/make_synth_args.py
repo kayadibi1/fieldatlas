@@ -4,6 +4,7 @@ import sys
 from collections import Counter
 
 sys.path.insert(0, ".")
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from fieldatlas import db
 from fieldatlas.config import WORK_DIR, ARTIFACTS_DIR, load_scope
 
@@ -15,7 +16,7 @@ for r in con.execute(
     "SELECT e.canonical_id, e.fields_json, d.title, d.year FROM extractions e "
     # idea grounding requires FULLY verified extractions (>=85% spans verbatim), not 'partial'
     "JOIN documents d ON d.canonical_id=e.canonical_id WHERE e.verify_status='verified' "
-    "ORDER BY d.relevance DESC LIMIT 80"):
+    "ORDER BY d.relevance DESC, e.canonical_id LIMIT 80"):
     f = json.loads(r[1])
     verified.append({"id": r[0], "title": r[2], "year": r[3],
                      "problem": f.get("problem"), "methods": f.get("methods", []),
@@ -25,7 +26,7 @@ for r in con.execute(
 report_corpus = []
 for r in con.execute(
     "SELECT canonical_id,title,year,venue,abstract FROM documents "
-    "WHERE relevance IS NOT NULL ORDER BY relevance DESC LIMIT 60"):
+    "WHERE relevance IS NOT NULL ORDER BY relevance DESC, canonical_id LIMIT 60"):
     report_corpus.append({"id": r[0], "title": r[1], "year": r[2], "venue": r[3],
                           "abstract": (r[4] or "")[:600]})
 
@@ -35,8 +36,13 @@ year_hist = dict(Counter(r[0] for r in con.execute(
 clusters = []
 mp = ARTIFACTS_DIR / "map.json"
 if mp.exists():
-    for c in json.loads(mp.read_text(encoding="utf-8")).get("clusters", []):
-        clusters.append({"label": c["label"], "ids": [m["canonical_id"] for m in c["members"]]})
+    try:
+        mp_data = json.loads(mp.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        mp_data = {}
+    for c in mp_data.get("clusters", []):
+        ids = [m.get("canonical_id") for m in c.get("members", []) if m.get("canonical_id")]
+        clusters.append({"label": c.get("label", ""), "ids": ids})
 
 con.close()
 args = {"field": scope.get("field"), "report_corpus": report_corpus,

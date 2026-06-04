@@ -3,6 +3,7 @@ import json
 import sys
 
 sys.path.insert(0, ".")
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from fieldatlas.config import load_scope
 from fieldatlas.graph import build_map
 

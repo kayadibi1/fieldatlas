@@ -16,9 +16,11 @@ from . import db
 from .config import ARTIFACTS_DIR
 from .rank import _model, _norm
 
-_STOP = set("a an the of for and or to in on with using via via toward towards via "
-            "via a model models learning ai using based approach analysis study via "
-            "via via via via large language via via via systems system via".split())
+# generic English/academic stopwords; domain-specific ones come from scope[cluster_stopwords]
+_STOP = {"a", "an", "the", "of", "for", "and", "or", "to", "in", "on", "with", "using",
+         "via", "toward", "towards", "based", "approach", "analysis", "study", "from",
+         "into", "review", "framework", "model", "models", "learning", "system", "systems",
+         "large", "language"}
 _WORD = re.compile(r"[a-z][a-z0-9-]{2,}")
 
 
@@ -39,11 +41,12 @@ def _kmeans(X: np.ndarray, k: int, iters: int = 30) -> np.ndarray:
     return labels
 
 
-def _label(titles: list[str], k_terms=3) -> str:
+def _label(titles: list[str], extra_stop=(), k_terms=3) -> str:
+    stop = _STOP | set(extra_stop)
     terms = Counter()
     for t in titles:
         for w in _WORD.findall((t or "").lower()):
-            if w not in _STOP:
+            if w not in stop:
                 terms[w] += 1
     return ", ".join(w for w, _ in terms.most_common(k_terms)) or "misc"
 
@@ -52,7 +55,7 @@ def build_map(scope: dict, min_tier: int = 2) -> dict:
     con = db.connect()
     rows = con.execute(
         "SELECT canonical_id,title,abstract,year,venue,relevance,read_tier,fulltext_status "
-        "FROM documents WHERE read_tier<=? ORDER BY relevance DESC", (min_tier,)
+        "FROM documents WHERE read_tier<=? ORDER BY relevance DESC, canonical_id", (min_tier,)
     ).fetchall()
     docs = [dict(r) for r in rows]
     if not docs:
@@ -81,7 +84,7 @@ def build_map(scope: dict, min_tier: int = 2) -> dict:
         if not members:
             continue
         clusters.append({
-            "id": c, "label": _label([m["title"] for m in members]),
+            "id": c, "label": _label([m["title"] for m in members], scope.get("cluster_stopwords", [])),
             "size": len(members),
             "members": [{"canonical_id": m["canonical_id"], "title": m["title"],
                          "year": m["year"], "relevance": round(m["relevance"] or 0, 3),

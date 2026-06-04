@@ -65,11 +65,22 @@ def md2html(text: str) -> str:
 
 # ---- gather data
 load = lambda n: (ARTIFACTS_DIR / n).read_text(encoding="utf-8") if (ARTIFACTS_DIR / n).exists() else ""
-loadj = lambda n: json.loads(load(n)) if load(n) else None
+
+
+def loadj(n):
+    try:
+        s = load(n)
+        return json.loads(s) if s else None
+    except json.JSONDecodeError:
+        return None   # degrade to a partial report rather than crashing
 report_md = load("report.md")
 runrep_md = load("RUN_REPORT.md")
 trends = loadj("trends.json") or {"trends": [], "controversies": []}
 ideas = loadj("ideas.json") or []
+if isinstance(ideas, dict):
+    ideas = ideas.get("ideas", [])
+if not isinstance(ideas, list):
+    ideas = []
 mp = loadj("map.json") or {}
 
 stats = {

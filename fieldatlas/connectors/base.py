@@ -46,6 +46,8 @@ def normalize_ids(ids: dict) -> dict:
         fn = NORMALIZERS.get(scheme)
         v = fn(str(val)) if fn else str(val).strip()
         if v:
+            v = re.sub(r"[<>\"'&\x00-\x1f]", "", v)   # strip HTML-metachars/control chars from ids
+        if v:
             out[scheme] = v
     return out
 

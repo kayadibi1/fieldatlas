@@ -77,7 +77,7 @@ def overview():
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Documents", scalar("SELECT COUNT(*) FROM documents"))
-    c2.metric("Deep-read (verified)", scalar("SELECT COUNT(*) FROM extractions WHERE verify_status IN ('verified','partial')"))
+    c2.metric("Deep-read (verified)", scalar("SELECT COUNT(DISTINCT canonical_id) FROM extractions WHERE verify_status IN ('verified','partial')"))
     c3.metric("Citation edges", scalar("SELECT COUNT(*) FROM citations"))
     c4.metric("Research ideas", scalar("SELECT COUNT(*) FROM ideas"))
 

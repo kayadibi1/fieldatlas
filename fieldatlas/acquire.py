@@ -36,13 +36,17 @@ def acquire_one(doc: dict, settings) -> dict:
     cid = doc["canonical_id"]
     dest = PDF_DIR / f"{safe_name(cid)}.pdf"
     if dest.exists() and dest.stat().st_size > 1000:
-        return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": "cache"}
+        with open(dest, "rb") as f:
+            if f.read(5) == b"%PDF-":     # validate magic bytes, not just size (catch truncated cache)
+                return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": "cache"}
 
     from . import oa
     ids = doc.get("external_ids", {})
-    candidates = oa.candidate_pdf_urls(doc, settings)   # all legal OA PDF candidates
-
-    for via, url in candidates:
+    # cheap (no-network) candidates first; only hit networked OA locators if those fail
+    for via, url in oa.cheap_pdf_urls(doc):
+        if _download_pdf(url, dest):
+            return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": via}
+    for via, url in oa.networked_pdf_urls(doc, settings):
         if _download_pdf(url, dest):
             return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": via}
 

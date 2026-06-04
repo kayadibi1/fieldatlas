@@ -16,7 +16,7 @@ CITE_RE = re.compile(r"\[\[([^\]\[]+)\]\]")
 
 
 def extract_citations(text: str) -> list[str]:
-    return [m.group(1).strip() for m in CITE_RE.finditer(text or "")]
+    return [c for c in (m.group(1).strip() for m in CITE_RE.finditer(text or "")) if c]
 
 
 @dataclass
@@ -40,6 +40,11 @@ def lint_grounded(items: list[dict], valid_ids: set,
 
     Each item: {text, citations: [ids]}. Requires every citation to resolve AND at
     least one cited document to carry a verified evidence span (be in verified_doc_ids).
+
+    LIMITATION (by design): grounding is DOCUMENT-level — it checks the cited doc has *some*
+    verified evidence, not that a *specific* verified span supports *this* claim. Per-claim
+    binding would require associating each claim with span ids. The verbatim guarantee still
+    holds at the evidence-span level; this is grounding strength, not a soundness hole.
     """
     unknown, ungrounded = set(), []
     n = 0

@@ -58,6 +58,8 @@ def _canonical_id(ids: dict, title: str) -> str:
 
 def dedup(records: list[RawRecord]) -> list[dict]:
     """Return canonical documents, each merging the metadata of its source records."""
+    # drop unusable records (no id AND no title) — they would collide on one empty-title id
+    records = [r for r in records if r.external_ids or title_key(r.title)]
     uf = _UF()
     rec_node = []
     for i, rec in enumerate(records):

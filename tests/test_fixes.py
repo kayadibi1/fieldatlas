@@ -18,6 +18,35 @@ def test_kmeans_single_cluster():
     assert len(labels) == 2 and set(labels.tolist()) == {0}
 
 
+def test_dedup_drops_title_and_id_less_records():
+    from fieldatlas.connectors.base import RawRecord
+    from fieldatlas.dedup import dedup
+    recs = [RawRecord("s", "t", "", external_ids={}),                       # garbage: no title, no id
+            RawRecord("s", "t", "Real Paper", year=2020, external_ids={"doi": "10.1/x"})]
+    assert len(dedup(recs)) == 1
+
+
+def test_oa_cheap_is_network_free():
+    from fieldatlas import oa
+    d = {"external_ids": {"doi": "10.48550/arXiv.2307.03718"}, "oa_pdf_url": None}
+    cheap = oa.cheap_pdf_urls(d)                                            # must not call the network
+    assert cheap == [("arxiv", "https://arxiv.org/pdf/2307.03718.pdf")]
+
+
+def test_seed_corpus_forces_tier1():
+    from fieldatlas.rank import assign_tiers
+    ranked = [{"canonical_id": "doi:10.1/x", "relevance": 0.1, "is_fresh": False, "external_ids": {"doi": "10.1/x"}},
+              {"canonical_id": "a", "relevance": 0.9, "is_fresh": False, "external_ids": {}}]
+    assign_tiers(ranked, {"read_tiers": {"tier1_threshold": 0.55, "tier1_cap": 300},
+                          "seed_corpus": {"dois": ["10.1/x"]}})
+    assert next(d["read_tier"] for d in ranked if d["canonical_id"] == "doi:10.1/x") == 1
+
+
+def test_lint_ignores_empty_citation_marker():
+    from fieldatlas.lint import lint_text
+    assert lint_text("noise [[   ]] more", {"real:1"}).ok   # empty [[ ]] must not flag as unknown
+
+
 def test_ingest_is_idempotent(tmp_path):
     con = db.connect(tmp_path / "t.sqlite")
     db.init_db(con)
