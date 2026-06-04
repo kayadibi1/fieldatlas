@@ -13,7 +13,6 @@ from .connectors.http import get
 
 PDF_DIR = WORK_DIR / "pdf"
 PDF_DIR.mkdir(parents=True, exist_ok=True)
-UNPAYWALL = "https://api.unpaywall.org/v2/{doi}"
 
 
 def safe_name(cid: str) -> str:
@@ -33,34 +32,15 @@ def _download_pdf(url: str, dest: Path) -> bool:
     return False
 
 
-def _unpaywall_pdf(doi: str, email: str) -> str | None:
-    try:
-        r = get(UNPAYWALL.format(doi=doi), params={"email": email})
-    except Exception:
-        return None
-    j = r.json()
-    if not j.get("is_oa"):
-        return None
-    best = j.get("best_oa_location") or {}
-    return best.get("url_for_pdf") or best.get("url")
-
-
 def acquire_one(doc: dict, settings) -> dict:
     cid = doc["canonical_id"]
     dest = PDF_DIR / f"{safe_name(cid)}.pdf"
     if dest.exists() and dest.stat().st_size > 1000:
         return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": "cache"}
 
+    from . import oa
     ids = doc.get("external_ids", {})
-    candidates = []
-    if ids.get("arxiv"):
-        candidates.append(("arxiv", f"https://arxiv.org/pdf/{ids['arxiv']}.pdf"))
-    if doc.get("oa_pdf_url"):
-        candidates.append(("oa_url", doc["oa_pdf_url"]))
-    if ids.get("doi"):
-        up = _unpaywall_pdf(ids["doi"], settings.contact_email)
-        if up:
-            candidates.append(("unpaywall", up))
+    candidates = oa.candidate_pdf_urls(doc, settings)   # all legal OA PDF candidates
 
     for via, url in candidates:
         if _download_pdf(url, dest):
