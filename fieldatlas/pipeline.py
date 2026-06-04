@@ -68,8 +68,14 @@ def run_plane1(scope, settings, sources=None, per_query_limit=None,
     _persist_ranking(con, ranked)
     n_edges = _persist_citation_edges(con, edges_raw)
 
-    # 5. acquire + parse full text for the deep-read tiers
-    to_read = [d for d in ranked if d.get("read_tier") in acquire_tiers]
+    # 5. acquire + parse full text for the deep-read tiers. Only attempt docs with an
+    # obtainable full-text handle (DOI/arXiv/OA PDF); URL-only grey-lit enriches the map
+    # and synthesis at abstract level rather than burning deep-read attempts.
+    def _acquirable(d):
+        ids = d.get("external_ids", {})
+        return bool(ids.get("doi") or ids.get("arxiv") or d.get("oa_pdf_url"))
+
+    to_read = [d for d in ranked if d.get("read_tier") in acquire_tiers and _acquirable(d)]
     if max_acquire:
         to_read = to_read[:max_acquire]
     acq = {"fetched": 0, "metadata_only": 0, "parsed": 0, "parse_failed": 0}

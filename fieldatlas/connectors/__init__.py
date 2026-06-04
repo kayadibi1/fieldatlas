@@ -1,7 +1,8 @@
 """Connector registry. Each connector exposes search(scope, settings, limit) -> [RawRecord]."""
 from __future__ import annotations
 
-from . import arxiv, core, crossref, openalex, semantic_scholar
+from . import (arxiv, core, crossref, federalregister, greylit, openalex,
+               semantic_scholar)
 
 REGISTRY = {
     "arxiv": arxiv,
@@ -9,6 +10,8 @@ REGISTRY = {
     "crossref": crossref,
     "semantic_scholar": semantic_scholar,
     "core": core,
+    "greylit": greylit,
+    "federal_register": federalregister,
 }
 
 
