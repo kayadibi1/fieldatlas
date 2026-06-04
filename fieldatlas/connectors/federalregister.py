@@ -9,10 +9,14 @@ NAME = "federal_register"
 
 
 def search(scope: dict, settings, limit: int = 100) -> list[RawRecord]:
+    # scope-driven; US-policy-specific connector. A non-policy field can set this to "" to skip.
+    term = scope.get("federal_register_term", "artificial intelligence")
     out = []
+    if not term:
+        return out
     try:
         r = get(API, params={
-            "conditions[term]": "artificial intelligence",
+            "conditions[term]": term,
             "per_page": min(limit, 100), "order": "newest",
             "fields[]": ["title", "abstract", "publication_date", "html_url",
                          "document_number", "agencies", "type"],

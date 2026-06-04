@@ -25,7 +25,7 @@
 - `artifacts/map.md` / `map.json` — literature map / knowledge graph
 - `artifacts/report.md` — state-of-the-field synthesis (citation-linted)
 - `artifacts/trends.md` / `trends.json` — trends & controversy
-- `artifacts/ideas.md` / `ideas.json` — 27 research proposals (grounded + novelty-checked)
+- `artifacts/ideas.md` / `ideas.json` — 9 research proposals (grounded + novelty-checked)
 
 ## Honesty notes
 - Items with no obtainable OA full text are NOT-READ and contribute no deep claims (shown above).

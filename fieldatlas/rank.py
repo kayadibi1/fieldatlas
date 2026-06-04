@@ -45,6 +45,8 @@ def _days_old(pub_date: str | None) -> float | None:
 
 def rank_documents(docs: list[dict], scope: dict) -> list[dict]:
     """Annotate each doc with `relevance` (cosine) and `is_fresh`. Returns docs sorted desc."""
+    if not docs:                       # empty corpus: nothing to rank (avoid embed/_norm crash)
+        return []
     model = _model(scope.get("ranking", {}).get("embedding_model", "BAAI/bge-small-en-v1.5"))
     texts = [((d.get("title") or "") + ". " + (d.get("abstract") or "")).strip() for d in docs]
     doc_vecs = _norm(np.array(list(model.embed(texts)), dtype=np.float32))

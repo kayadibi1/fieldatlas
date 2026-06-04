@@ -13,7 +13,8 @@ scope = load_scope()
 verified = []
 for r in con.execute(
     "SELECT e.canonical_id, e.fields_json, d.title, d.year FROM extractions e "
-    "JOIN documents d ON d.canonical_id=e.canonical_id WHERE e.verify_status IN ('verified','partial') "
+    # idea grounding requires FULLY verified extractions (>=85% spans verbatim), not 'partial'
+    "JOIN documents d ON d.canonical_id=e.canonical_id WHERE e.verify_status='verified' "
     "ORDER BY d.relevance DESC LIMIT 80"):
     f = json.loads(r[1])
     verified.append({"id": r[0], "title": r[2], "year": r[3],

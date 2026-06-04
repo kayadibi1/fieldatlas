@@ -67,6 +67,22 @@ deltas are small.
 
 ---
 
+## A different field (not AI safety ∩ AI policy)
+
+Create `scope/<slug>.yaml` (copy the default; rewrite `field` / `queries` / `boundary` /
+`seed_corpus`; for policy fields set `federal_register_term` and optionally
+`greylit_feeds` / `greylit_terms`). Then run **every** step with both env vars set so the new
+field gets its own scope and its own DB (no mixing):
+
+```powershell
+$env:FIELDATLAS_SCOPE = "scope\<slug>.yaml"; $env:FIELDATLAS_DB = "<slug>.sqlite"
+.venv\Scripts\python scripts\run_plane1.py 100 30 openalex,crossref,core
+# ...keep both env vars set for build_map / make_synth_args / build_outputs / final_report / build_html
+```
+
+The academic connectors generalize as-is; `greylit` / `federal_register` are AI-policy-curated
+and contribute little to other fields unless you supply field-appropriate config in the scope.
+
 ## View the outputs
 
 - **Markdown:** `artifacts\report.md`, `ideas.md`, `trends.md`, `map.md`, `RUN_REPORT.md`

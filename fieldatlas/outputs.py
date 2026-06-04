@@ -46,6 +46,7 @@ def save_ideas(ideas: list[dict], run_id: str) -> dict:
     db.init_db(con)
     valid = db.valid_ids(con)
     verified = db.verified_doc_ids(con)
+    con.execute("DELETE FROM ideas WHERE run_id=?", (run_id,))   # idempotent: replace this run's ideas
 
     accepted, flagged = [], []
     for idea in ideas:

@@ -41,6 +41,10 @@ def ingest_extraction(con, extraction: dict, run_id: str, reader_model: str = "c
     else:
         status = "rejected"          # nothing verifiable — barred from outputs
 
+    # idempotent: a re-read of the same paper REPLACES its prior extraction + spans
+    con.execute("DELETE FROM evidence_spans WHERE canonical_id=?", (cid,))
+    con.execute("DELETE FROM extractions WHERE canonical_id=?", (cid,))
+
     fields = {k: v for k, v in extraction.items() if k not in ("spans", "canonical_id")}
     cur = con.execute(
         """INSERT INTO extractions(canonical_id,schema_version,fields_json,coverage_score,

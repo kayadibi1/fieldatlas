@@ -43,8 +43,9 @@ def chip(cid: str) -> str:
     t = TITLE.get(cid, "")
     tip = html.escape((t + "  ·  " if t else "") + cid, quote=True)
     inner = html.escape(disp)
-    if href:
-        return f'<a class="cite" href="{href}" target="_blank" title="{tip}">{inner}</a>'
+    if href and href.startswith(("https://", "http://")):   # escape + scheme-validate (no javascript:)
+        return (f'<a class="cite" href="{html.escape(href, quote=True)}" target="_blank" '
+                f'rel="noopener noreferrer" title="{tip}">{inner}</a>')
     return f'<span class="cite" title="{tip}">{inner}</span>'
 
 
@@ -56,7 +57,10 @@ def linkify(html_str: str) -> str:
 
 
 def md2html(text: str) -> str:
-    return linkify(md.markdown(text or "", extensions=["tables", "fenced_code", "sane_lists", "attr_list"]))
+    # neutralize raw HTML in model/corpus-generated markdown (no <script> etc. survives);
+    # markdown syntax (#, *, |, [[id]]) is unaffected. linkify then injects our own chips.
+    safe = (text or "").replace("<", "&lt;").replace(">", "&gt;")
+    return linkify(md.markdown(safe, extensions=["tables", "fenced_code", "sane_lists"]))
 
 
 # ---- gather data
@@ -75,7 +79,7 @@ stats = {
     "spans_caught": q1("SELECT COUNT(*) FROM evidence_spans WHERE verified=0"),
     "edges": q1("SELECT COUNT(*) FROM citations"),
     "notread": q1("SELECT COUNT(*) FROM documents WHERE fulltext_status='metadata_only'"),
-    "ideas": q1("SELECT COUNT(*) FROM ideas"),
+    "ideas": len(ideas),   # this run's rendered ideas (matches the cards), not all-time table count
 }
 run = con.execute("SELECT run_id, manifest_json FROM runs ORDER BY started_at DESC LIMIT 1").fetchone()
 manifest = json.loads(run["manifest_json"]) if run else {}

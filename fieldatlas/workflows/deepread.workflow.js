@@ -57,7 +57,7 @@ phase('Read')
 const results = await pipeline(
   docs,
   (d) => agent(
-    `You are deep-reading one paper for an AI-safety/AI-policy literature review.\n` +
+    `You are deep-reading one paper for a literature review.\n` +
     `Use the Read tool to read the ENTIRE file at:\n  ${d.md_path}\n` +
     `Read it FULLY — if it is long, page through with offset until you have seen all of it. Do not skim.\n\n` +
     `Then extract a faithful structured record. The canonical_id field MUST be exactly: ${d.canonical_id}\n\n` +

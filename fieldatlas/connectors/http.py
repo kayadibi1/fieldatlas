@@ -37,7 +37,7 @@ class RateLimited(Exception):
     pass
 
 
-@retry(retry=retry_if_exception_type((RateLimited, requests.RequestException)),
+@retry(retry=retry_if_exception_type((RateLimited, requests.ConnectionError, requests.Timeout)),
        wait=wait_exponential(multiplier=2, min=2, max=60),
        stop=stop_after_attempt(5), reraise=True)
 def get(url: str, params: dict | None = None, headers: dict | None = None,

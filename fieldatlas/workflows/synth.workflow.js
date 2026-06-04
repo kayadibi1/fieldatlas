@@ -43,12 +43,12 @@ const EVAL_SCHEMA = { type: 'object', additionalProperties: false, properties: {
 phase('Synthesis')
 const [report, trends] = await parallel([
   () => agent(
-    `Write a rigorous "state of the field" synthesis for an AI-safety/AI-policy literature review.\n${readNote}\n` +
+    `Write a rigorous "state of the field" synthesis for a literature review of the field named in the JSON's "field" value.\n${readNote}\n` +
     `Use ONLY documents from report_corpus. Cite every paper-based claim with its id in the marker form [[id]] — never invent an id. ` +
     `Cover: the main sub-areas (see clusters), what is established, key methods, tensions, and open problems. Return markdown.`,
     { label: 'report', phase: 'Synthesis', schema: REPORT_SCHEMA }),
   () => agent(
-    `Identify current TRENDS and CONTESTED/contentious topics in this AI-safety/AI-policy corpus.\n${readNote}\n` +
+    `Identify current TRENDS and CONTESTED/contentious topics in this corpus (the field is the JSON's "field" value).\n${readNote}\n` +
     `Use year_hist for trajectory. For each trend and each controversy: a short summary and citations (ids from report_corpus).`,
     { label: 'trends', phase: 'Synthesis', schema: TRENDS_SCHEMA }),
 ])
@@ -60,7 +60,7 @@ const MODES = [
   { kind: 'original', hint: 'target an OPEN PROBLEM or stated limitation with a genuinely new direction' },
 ]
 const generated = await parallel(MODES.map((m) => () => agent(
-  `Generate research ideas for AI safety ∩ AI policy. Strategy: ${m.hint}.\n${readNote}\n` +
+  `Generate research ideas for the field named in the JSON's "field" value. Strategy: ${m.hint}.\n${readNote}\n` +
   `Ground every idea in specific papers from verified_corpus (put their ids in grounded_doc_ids — only ids from verified_corpus). ` +
   `Produce 2-3 concrete, specific ideas of kind "${m.kind}", each naming the papers it builds on.`,
   { label: `gen:${m.kind}`, phase: 'Ideate', schema: GEN_SCHEMA })))
@@ -68,7 +68,7 @@ const generated = await parallel(MODES.map((m) => () => agent(
 const ideas = generated.filter(Boolean).flatMap((g) => g.ideas || [])
 
 const evaluated = await parallel(ideas.map((idea) => () => agent(
-  `Critically evaluate this research idea for AI safety ∩ AI policy:\n${JSON.stringify(idea)}\n\n` +
+  `Critically evaluate this research idea:\n${JSON.stringify(idea)}\n\n` +
   `1) NOVELTY: use web search to find prior work that already does this; set novelty_status ` +
   `("novel" | "incremental" | "already-exists") and summarize what you found in novelty_evidence.\n` +
   `2) FEASIBILITY + key assumptions.\n` +

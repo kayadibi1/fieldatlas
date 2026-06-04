@@ -72,7 +72,7 @@ def build_map(scope: dict, min_tier: int = 2) -> dict:
 
     texts = [((d["title"] or "") + ". " + (d["abstract"] or "")) for d in docs]
     vecs = _norm(np.array(list(_model().embed(texts)), dtype=np.float32))
-    k = max(2, min(8, len(docs) // 4))
+    k = min(8, max(1, len(docs) // 4), len(docs))   # clamp to data (handles 1-3 doc maps)
     labels = _kmeans(vecs, k)
 
     clusters = []

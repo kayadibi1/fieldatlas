@@ -43,9 +43,9 @@ def _strip(s: str | None) -> str | None:
     return _TAG.sub("", s).strip() if s else None
 
 
-def _relevant(text: str) -> bool:
+def _relevant(text: str, terms) -> bool:
     t = (text or "").lower()
-    return any(k in t for k in AI_TERMS)
+    return any(k in t for k in terms)
 
 
 def _fetch(url: str) -> bytes | None:
@@ -57,9 +57,12 @@ def _fetch(url: str) -> bytes | None:
 
 
 def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
+    # scope-driven; defaults are the curated AI-safety/policy feeds + relevance terms.
+    feeds = scope.get("greylit_feeds") or FEEDS
+    terms = tuple(scope.get("greylit_terms") or AI_TERMS)
     per_feed = min(limit, 60)
     out = []
-    for name, url, tier in FEEDS:
+    for name, url, tier in feeds:
         raw = _fetch(url)
         if not raw:
             continue
@@ -67,7 +70,7 @@ def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
         for e in feed.entries[:per_feed]:
             title = _strip(getattr(e, "title", "")) or ""
             summary = _strip(getattr(e, "summary", "")) or _strip(getattr(e, "description", ""))
-            if tier in _FILTER_TIERS and not _relevant(f"{title} {summary or ''}"):
+            if tier in _FILTER_TIERS and not _relevant(f"{title} {summary or ''}", terms):
                 continue
             link = getattr(e, "link", None)
             year = None

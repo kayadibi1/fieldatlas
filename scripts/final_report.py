@@ -21,12 +21,12 @@ stats = {
     "tier3": q("SELECT COUNT(*) FROM documents WHERE read_tier=3"),
     "parsed_fulltext": q("SELECT COUNT(*) FROM documents WHERE fulltext_status='parsed'"),
     "metadata_only": q("SELECT COUNT(*) FROM documents WHERE fulltext_status='metadata_only'"),
-    "extractions_verified": q("SELECT COUNT(*) FROM extractions WHERE verify_status='verified'"),
+    "extractions_verified": q("SELECT COUNT(DISTINCT canonical_id) FROM extractions WHERE verify_status='verified'"),
     "extractions_rejected": q("SELECT COUNT(*) FROM extractions WHERE verify_status='rejected'"),
     "evidence_spans_verified": q("SELECT COUNT(*) FROM evidence_spans WHERE verified=1"),
     "evidence_spans_failed": q("SELECT COUNT(*) FROM evidence_spans WHERE verified=0"),
     "citation_edges": q("SELECT COUNT(*) FROM citations"),
-    "ideas": q("SELECT COUNT(*) FROM ideas"),
+    "ideas": con.execute("SELECT COUNT(*) FROM ideas WHERE run_id=?", (run_id,)).fetchone()[0],
 }
 con.close()
 
