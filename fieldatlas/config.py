@@ -29,6 +29,9 @@ class Settings:
     openalex_api_key: str | None
     semantic_scholar_api_key: str | None
     firecrawl_api_key: str | None
+    elsevier_api_key: str | None
+    elsevier_insttoken: str | None
+    wiley_tdm_token: str | None
 
 
 def settings() -> Settings:
@@ -38,6 +41,9 @@ def settings() -> Settings:
         openalex_api_key=os.getenv("OPENALEX_API_KEY") or None,
         semantic_scholar_api_key=os.getenv("SEMANTIC_SCHOLAR_API_KEY") or None,
         firecrawl_api_key=os.getenv("FIRECRAWL_API_KEY") or None,
+        elsevier_api_key=os.getenv("ELSEVIER_API_KEY") or None,
+        elsevier_insttoken=os.getenv("ELSEVIER_INSTTOKEN") or None,
+        wiley_tdm_token=os.getenv("WILEY_TDM_TOKEN") or None,
     )
 
 

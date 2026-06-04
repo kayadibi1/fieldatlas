@@ -17,6 +17,8 @@ HOST_MIN_INTERVAL = {
     "api.crossref.org": 0.2,
     "api.semanticscholar.org": 1.1,    # 1 RPS default even with a key
     "api.core.ac.uk": 1.0,
+    "api.elsevier.com": 1.0,           # TDM — respect publisher quotas
+    "api.wiley.com": 3.5,              # Wiley TDM is strictly rate-limited
 }
 _last: dict = {}
 

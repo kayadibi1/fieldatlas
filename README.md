@@ -70,8 +70,23 @@ Outputs land in `artifacts/`: `map.md`/`map.json`, `report.md`, `trends.md`/`.js
 | Semantic Scholar | ⚠ wired | needs key value for usable throughput (keyless pool is throttled) |
 | Firecrawl + grey-lit adapters | 📋 specced | think-tank/gov/discourse sources per spec §5.3/§5.5 |
 
-**Excluded by design:** Anna's Archive / shadow libraries (copyright). Full text comes only
-from legal OA sources; paywalled items are honestly marked NOT-READ.
+### Full-text access (legitimate paths only)
+
+Full text is obtained only through sanctioned routes; paywalled items with no legal copy are
+honestly marked **NOT-READ** and contribute no deep claims.
+
+1. **Open access** (default) — arXiv, CORE, Unpaywall/OpenAlex OA locations. High coverage in
+   this arXiv-heavy field.
+2. **Manual drop** — `scripts/add_manual_pdf.py <id> <pdf>` registers a PDF you obtained through
+   your own individual institutional access (license-permitted individual reading; the tool only
+   does the analysis). For the handful of must-read paywalled papers.
+3. **Publisher TDM API** (`fieldatlas/tdm.py`) — the sanctioned automated route for institutional
+   scale. Inert until `ELSEVIER_API_KEY`/`ELSEVIER_INSTTOKEN`/`WILEY_TDM_TOKEN` are set in `.env`,
+   which requires the institution (e.g. JHU Library) to confirm TDM entitlement and issue tokens.
+
+**Excluded by design:** Anna's Archive / shadow libraries, and replaying institutional session
+cookies to bulk-download from paywalls (this is the "systematic downloading" publisher licenses
+prohibit and can get the whole institution's access blocked). Use the TDM API instead.
 
 ## Tests
 

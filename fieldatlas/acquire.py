@@ -65,6 +65,16 @@ def acquire_one(doc: dict, settings) -> dict:
     for via, url in candidates:
         if _download_pdf(url, dest):
             return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": via}
+
+    # Sanctioned publisher TDM fallback — inert unless institutional TDM tokens are set.
+    if ids.get("doi"):
+        from . import tdm
+        res = tdm.fetch_pdf(ids["doi"], settings)
+        if res:
+            data, provider = res
+            dest.write_bytes(data)
+            return {"canonical_id": cid, "status": "fetched", "path": str(dest), "via": f"tdm:{provider}"}
+
     return {"canonical_id": cid, "status": "metadata_only", "path": None, "via": None}
 
 
