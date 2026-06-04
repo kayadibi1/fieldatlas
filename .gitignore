@@ -1,0 +1,22 @@
+# Secrets — never commit
+.env
+*.key
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# FieldAtlas runtime data & artifacts
+data/*.sqlite
+data/*.sqlite-*
+work/
+artifacts/
+embeddings/*.npy
+*.log
+
+# OS
+Thumbs.db
+desktop.ini

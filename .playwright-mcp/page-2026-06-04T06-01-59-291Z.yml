@@ -1,0 +1,99 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - link [ref=e7] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - button "Get started " [ref=e11] [cursor=pointer]:
+          - generic [ref=e13]:
+            - text: Get started
+            - generic [ref=e14]: 
+        - button "Products " [ref=e16] [cursor=pointer]:
+          - generic [ref=e18]:
+            - text: Products
+            - generic [ref=e19]: 
+        - link "Integrations" [ref=e20] [cursor=pointer]:
+          - /url: /integrations
+          - generic [ref=e22]: Integrations
+        - button "About " [ref=e24] [cursor=pointer]:
+          - generic [ref=e26]:
+            - text: About
+            - generic [ref=e27]: 
+        - link "Fix an Error" [ref=e28] [cursor=pointer]:
+          - /url: /fix
+          - generic [ref=e30]: Fix an Error
+      - text: 
+  - generic [ref=e32]:
+    - heading "Database snapshot" [level=1] [ref=e33]
+    - paragraph [ref=e34]:
+      - text: We're no longer creating semi-annual Unpaywall snapshots. But don't worry! You can get all of the data that is in Unpaywall (and much more) by downloading the latest snapshot from
+      - link "OpenAlex" [ref=e35] [cursor=pointer]:
+        - /url: https://openalex.org
+      - text: .
+    - paragraph [ref=e36]:
+      - text: The OpenAlex snapshot is updated approximately once per month. Instructions on how and where to download the data are
+      - link "here" [ref=e37] [cursor=pointer]:
+        - /url: https://developers.openalex.org/download/snapshot-format
+      - text: .
+  - generic [ref=e38]:
+    - generic [ref=e39]:
+      - heading "Products & integrations" [level=3] [ref=e40]
+      - link "Unsub" [ref=e41] [cursor=pointer]:
+        - /url: https://unsub.org/
+      - link "Chrome/Firefox extension" [ref=e42] [cursor=pointer]:
+        - /url: /products/extension
+      - link "Database snapshot" [ref=e43] [cursor=pointer]:
+        - /url: /products/snapshot
+      - link "Data Feed" [ref=e44] [cursor=pointer]:
+        - /url: /products/data-feed
+      - link "REST API" [ref=e45] [cursor=pointer]:
+        - /url: /products/api
+      - link "Simple Query Tool" [ref=e46] [cursor=pointer]:
+        - /url: /products/simple-query-tool
+      - link "Library link resolver integration" [ref=e47] [cursor=pointer]:
+        - /url: /integrations#link-resolvers
+      - link "Search articles" [ref=e48] [cursor=pointer]:
+        - /url: /articles
+    - generic [ref=e49]:
+      - heading "Get Started" [level=3] [ref=e50]
+      - link "Libraries" [ref=e51] [cursor=pointer]:
+        - /url: /user-guides/libraries
+      - link "Enterprise" [ref=e52] [cursor=pointer]:
+        - /url: /user-guides/enterprise
+      - link "Research" [ref=e53] [cursor=pointer]:
+        - /url: /user-guides/research
+    - generic [ref=e54]:
+      - heading "About" [level=3] [ref=e55]
+      - link "Team" [ref=e56] [cursor=pointer]:
+        - /url: /team
+      - link "FAQ" [ref=e57] [cursor=pointer]:
+        - /url: /faq
+      - link "Data format guide" [ref=e58] [cursor=pointer]:
+        - /url: /data-format
+      - link "Data sources" [ref=e59] [cursor=pointer]:
+        - /url: /sources
+      - link "Terms of Service" [ref=e60] [cursor=pointer]:
+        - /url: /legal/terms-of-service
+      - link "Privacy policy" [ref=e61] [cursor=pointer]:
+        - /url: /legal/privacy
+      - link "Contact" [ref=e62] [cursor=pointer]:
+        - /url: /contact
+      - link "Fix an Error" [ref=e63] [cursor=pointer]:
+        - /url: /fix
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - link "" [ref=e67] [cursor=pointer]:
+          - /url: https://twitter.com/unpaywall
+          - generic [ref=e68]: 
+        - link "" [ref=e69] [cursor=pointer]:
+          - /url: https://github.com/ourresearch/oadoi
+          - generic [ref=e70]: 
+        - link "" [ref=e71] [cursor=pointer]:
+          - /url: mailto:team@ourresearch.org
+          - generic [ref=e72]: 
+      - generic [ref=e73]:
+        - text: Made with
+        - generic [ref=e74]: 
+        - text: at
+        - link "OurResearch." [ref=e75] [cursor=pointer]:
+          - /url: https://ourresearch.org

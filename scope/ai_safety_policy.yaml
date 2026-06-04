@@ -1,0 +1,51 @@
+# FieldAtlas scope config — AI safety ∩ AI policy
+field: "AI safety ∩ AI policy"
+
+# Boolean query terms expanded across connectors (OR within, scoped by connector syntax)
+queries:
+  - "AI safety"
+  - "AI alignment"
+  - "AI governance"
+  - "frontier model regulation"
+  - "compute governance"
+  - "AI risk management"
+  - "model evaluation safety"
+  - "dangerous capability evaluation"
+  - "AI policy"
+  - "responsible AI regulation"
+  - "existential risk artificial intelligence"
+  - "interpretability alignment"
+
+# Concrete inclusion boundary (used by the relevance reranker as the scope description)
+boundary: >
+  Work bearing on BOTH technical AI safety (alignment, interpretability, robustness,
+  evaluations, oversight, control) AND its governance / policy dimension (regulation,
+  standards, compute governance, institutions, risk management), OR a primary input to
+  that intersection (e.g. an evaluation method later used in policy, or a governance
+  proposal grounded in technical capability).
+
+exclude:
+  - "pure ML capability advances with no safety or policy framing"
+  - "narrow application papers (medical/finance) using 'AI safety' to mean product safety"
+
+seed_corpus:
+  arxiv_ids: ["2212.08073", "2108.07258", "2306.12001", "2403.05286"]
+  dois: ["10.1145/3442188.3445922"]
+
+arxiv_categories: ["cs.AI", "cs.CY", "cs.LG", "cs.CL", "stat.ML"]
+
+ranking:
+  embedding_model: "BAAI/bge-small-en-v1.5"
+  fresh_window_days: 60
+
+read_tiers:
+  tier1_threshold: 0.55      # cosine relevance cutoff (auto-tunable)
+  tier1_cap: 300
+  fresh_lane_quota: 40
+  tier2_band: 700
+
+harvest:
+  since_year: 2018
+  snowball_rounds: 2
+  snowball_convergence_pct: 2.0
+  per_query_limit: 200       # bounded for tractable runs; raise for full-field build

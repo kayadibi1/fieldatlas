@@ -1,0 +1,15 @@
+# FieldAtlas — lean, fully-local runtime (Python 3.12)
+requests>=2.31
+python-dotenv>=1.0
+tenacity>=8.2          # retries / backoff for connectors
+pyyaml>=6.0           # scope config
+numpy>=1.26           # embedding matrix + cosine
+fastembed>=0.3        # ONNX bge-small-en-v1.5 embeddings (no torch)
+pymupdf4llm>=0.0.17   # PDF -> section-structured markdown (born-digital faithful)
+feedparser>=6.0       # RSS/Atom grey-lit + newsletters
+pytest>=8.0           # tests
+
+# --- Optional upgrades (documented, not required for a verified run) ---
+# docling            # higher-fidelity parsing (pulls torch)
+# sentence-transformers + torch  # alternative embeddings
+# grobid-client-python           # reference extraction (needs GROBID via Docker)
