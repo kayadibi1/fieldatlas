@@ -13,9 +13,9 @@
 - Relevance threshold 0.55 / cap 300; fresh-lane added 40
 
 ## F1 — Reading (proof, not assertion)
-- Full text parsed: **21**  ·  NOT-READ (metadata_only): 10
-- Deep-read extractions VERIFIED: **21**  ·  rejected (unverifiable span): 0
-- Evidence spans string-matched into source: **554 verified**, 13 failed
+- Full text parsed: **149**  ·  NOT-READ (metadata_only): 149
+- Deep-read extractions VERIFIED: **144**  ·  rejected (unverifiable span): 0
+- Evidence spans string-matched into source: **3923 verified**, 66 failed
 
 ## F2 — Citations (grounded)
 - In-corpus citation edges: 791
@@ -25,7 +25,7 @@
 - `artifacts/map.md` / `map.json` — literature map / knowledge graph
 - `artifacts/report.md` — state-of-the-field synthesis (citation-linted)
 - `artifacts/trends.md` / `trends.json` — trends & controversy
-- `artifacts/ideas.md` / `ideas.json` — 18 research proposals (grounded + novelty-checked)
+- `artifacts/ideas.md` / `ideas.json` — 27 research proposals (grounded + novelty-checked)
 
 ## Honesty notes
 - Items with no obtainable OA full text are NOT-READ and contribute no deep claims (shown above).

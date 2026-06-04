@@ -13,7 +13,8 @@ scope = load_scope()
 verified = []
 for r in con.execute(
     "SELECT e.canonical_id, e.fields_json, d.title, d.year FROM extractions e "
-    "JOIN documents d ON d.canonical_id=e.canonical_id WHERE e.verify_status IN ('verified','partial')"):
+    "JOIN documents d ON d.canonical_id=e.canonical_id WHERE e.verify_status IN ('verified','partial') "
+    "ORDER BY d.relevance DESC LIMIT 80"):
     f = json.loads(r[1])
     verified.append({"id": r[0], "title": r[2], "year": r[3],
                      "problem": f.get("problem"), "methods": f.get("methods", []),
@@ -23,7 +24,7 @@ for r in con.execute(
 report_corpus = []
 for r in con.execute(
     "SELECT canonical_id,title,year,venue,abstract FROM documents "
-    "WHERE relevance IS NOT NULL ORDER BY relevance DESC LIMIT 40"):
+    "WHERE relevance IS NOT NULL ORDER BY relevance DESC LIMIT 60"):
     report_corpus.append({"id": r[0], "title": r[1], "year": r[2], "venue": r[3],
                           "abstract": (r[4] or "")[:600]})
 
