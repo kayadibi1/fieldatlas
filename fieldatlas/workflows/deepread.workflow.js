@@ -46,8 +46,12 @@ const VERDICT_SCHEMA = {
   required: ['faithful', 'issues'],
 }
 
-const docs = Array.isArray(args) ? args
-  : (typeof args === 'string' ? JSON.parse(args) : (args || []))
+const _a = (typeof args === 'string' ? JSON.parse(args) : args) || []
+const safeName = (s) => s.replace(/[^A-Za-z0-9._-]/g, '_')
+// Two arg forms: an array of {canonical_id, md_path}, or {dir, ids:[canonical_id,...]}
+// (md_path reconstructed from dir + safeName(id) + '.md', matching acquire.safe_name).
+const docs = Array.isArray(_a) ? _a
+  : (_a.ids ? _a.ids.map((id) => ({ canonical_id: id, md_path: `${_a.dir}\\${safeName(id)}.md` })) : [])
 phase('Read')
 
 const results = await pipeline(

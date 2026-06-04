@@ -96,7 +96,9 @@ def candidate_pdf_urls(doc: dict, settings) -> list[tuple[str, str]]:
     if oaid or doi:
         for u in _openalex_locations(oaid or f"doi:{doi}", settings.openalex_api_key):
             add("openalex_loc", u)
-    s2u = _s2_oa_pdf(ids, settings.semantic_scholar_api_key)
-    if s2u:
-        add("s2_oa", s2u)
+    # S2 OA lookup only with a key — the keyless pool 429-storms on bulk acquisition
+    if settings.semantic_scholar_api_key:
+        s2u = _s2_oa_pdf(ids, settings.semantic_scholar_api_key)
+        if s2u:
+            add("s2_oa", s2u)
     return out
