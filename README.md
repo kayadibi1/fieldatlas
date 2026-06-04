@@ -58,6 +58,19 @@ py -3.12 -m venv .venv
 Outputs land in `artifacts/`: `map.md`/`map.json`, `report.md`, `trends.md`/`.json`,
 `ideas.md`/`.json`, `RUN_REPORT.md`.
 
+## Dashboard (UI)
+
+```powershell
+.venv\Scripts\streamlit run fieldatlas\ui.py
+```
+
+A local, read-only Streamlit app over the SQLite corpus + artifacts. Views: **Overview**
+(the F1/F2/F3 reliability accounting), **Corpus** (searchable/filterable, with per-paper
+verified-vs-caught evidence spans and NOT-READ flags), **Map** (clusters + citation graph),
+**Report**, **Trends**, **Ideas**. Nothing leaves your machine.
+
+![FieldAtlas overview](docs/img/ui-overview.png)
+
 ## Connector status (verified against live docs, 2026-06-04)
 
 | Connector | Status | Notes |
