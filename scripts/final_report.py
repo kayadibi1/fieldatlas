@@ -3,6 +3,7 @@ import json
 import sys
 
 sys.path.insert(0, ".")
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows console is cp1252
 from fieldatlas import db
 from fieldatlas.config import ARTIFACTS_DIR
 
