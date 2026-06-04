@@ -30,8 +30,9 @@ py -3.12 -m venv .venv
 
 **2. [Claude] Deep-read the queued papers.** Ask: *"run the deep-read workflow on the queue."*
 For the FULL Tier-1 core instead, first `[you]` run `python scripts\acquire_tier1.py 400`, then ask
-Claude to deep-read the parsed set **in sequential batches of ~45** (parallel batches trip model
-rate limits — always one workflow at a time).
+Claude to deep-read the parsed set in batches of ~45. Parallel batches are fine for speed; if a
+batch hits a transient **"Server is temporarily limiting requests (not your usage limit)"** overload,
+just retry or resume that workflow (`resumeFromRunId` returns cached successes).
 
 **3. [Claude→you] Verify + ingest.** Claude saves the workflow result to
 `work/extractions_raw.json`; then:
@@ -90,7 +91,9 @@ deltas are small.
 ```
 
 ## Gotchas
-- **Deep-read = one workflow at a time** (16 concurrent). Parallel workflows hit model rate limits.
+- **Deep-read** can run as parallel workflows for speed. Each workflow caps at 16 concurrent
+  agents. If you hit a transient "Server is temporarily limiting requests (not your usage limit)"
+  overload, retry/resume the affected workflow (or fall back to one-at-a-time).
 - **arXiv** live query API is slow/rate-limits — left out of the default source list (OpenAlex covers preprints).
 - **Semantic Scholar** keyless pool is throttled — add the key value to use it.
 - **OpenAlex** is freemium ($1/day free); a full re-harvest is fine, heavy citation crawls aren't.
