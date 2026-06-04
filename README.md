@@ -71,6 +71,18 @@ verified-vs-caught evidence spans and NOT-READ flags), **Map** (clusters + citat
 
 ![FieldAtlas overview](docs/img/ui-overview.png)
 
+### Static HTML report
+
+```powershell
+.venv\Scripts\python scripts\build_html.py     # -> artifacts/report.html
+```
+
+A single self-contained `artifacts/report.html` (no server, no JS deps) — overview metrics,
+the full synthesis, trends/controversy, ranked ideas, the cluster map, and the audit
+manifest, with clickable citation chips (DOI/arXiv/OpenAlex). Double-click to open or share.
+
+![HTML report](docs/img/report-html.png)
+
 ## Connector status (verified against live docs, 2026-06-04)
 
 | Connector | Status | Notes |

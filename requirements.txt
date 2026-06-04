@@ -8,6 +8,7 @@ fastembed>=0.3        # ONNX bge-small-en-v1.5 embeddings (no torch)
 pymupdf4llm>=0.0.17   # PDF -> section-structured markdown (born-digital faithful)
 feedparser>=6.0       # RSS/Atom grey-lit + newsletters
 streamlit>=1.30       # local dashboard UI
+markdown>=3.5         # self-contained HTML report
 pytest>=8.0           # tests
 
 # --- Optional upgrades (documented, not required for a verified run) ---
