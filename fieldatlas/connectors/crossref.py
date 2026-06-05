@@ -38,7 +38,8 @@ def _to_record(it: dict) -> RawRecord:
 
 
 def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
-    since = scope.get("harvest", {}).get("since_year", 2018)
+    hv = scope.get("harvest", {})
+    since_date = hv.get("since_date") or f"{hv.get('since_year', 2018)}-01-01"
     out, seen = [], set()
     for q in scope.get("queries", []):
         cursor, got = "*", 0
@@ -46,7 +47,7 @@ def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
             try:
                 r = get(API, params={
                     "query.bibliographic": q,
-                    "filter": f"from-pub-date:{since}-01-01,type:journal-article",
+                    "filter": f"from-pub-date:{since_date},type:journal-article",
                     "rows": min(100, limit - got), "cursor": cursor,
                     "mailto": settings.contact_email,
                 })

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from . import db
 from .acquire import acquire_one, safe_name
@@ -53,10 +53,17 @@ def _set_fulltext(con, cid, status):
 
 
 def run_plane1(scope, settings, sources=None, per_query_limit=None,
-               acquire_tiers=(1, 2), max_acquire=None) -> dict:
+               acquire_tiers=(1, 2), max_acquire=None, delta=False) -> dict:
     con = db.connect()
     db.init_db(con)
     run_id = new_run_id()
+
+    # delta/living-system mode: harvest only works published since the last run (minus a buffer)
+    if delta:
+        last = con.execute("SELECT started_at FROM runs ORDER BY started_at DESC LIMIT 1").fetchone()
+        if last and last[0]:
+            since = (datetime.fromisoformat(last[0]) - timedelta(days=7)).strftime("%Y-%m-%d")
+            scope = {**scope, "harvest": {**scope.get("harvest", {}), "since_date": since}}
 
     # 1-2. harvest + persist
     docs, hmanifest = harvest(scope, settings, sources, per_query_limit)

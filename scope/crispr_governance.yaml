@@ -1,0 +1,53 @@
+# FieldAtlas scope — gene editing (CRISPR) governance ∩ biosafety
+# Cross-field generalization test: structurally parallel to AI safety∩policy (technical +
+# governance intersection) but an entirely different domain. Academic sources only
+# (the AI-specific grey-lit feeds / Federal Register are intentionally not used here).
+field: "CRISPR / gene-editing governance ∩ biosafety"
+
+queries:
+  - "human germline genome editing ethics"
+  - "CRISPR governance regulation"
+  - "heritable human genome editing policy"
+  - "gene editing biosafety"
+  - "gene drive governance"
+  - "genome editing moratorium"
+  - "CRISPR clinical translation ethics"
+  - "synthetic biology biosecurity policy"
+  - "responsible innovation gene editing"
+  - "international governance human genome editing"
+
+boundary: >
+  Work bearing on BOTH the technical capability of genome/gene editing (CRISPR-Cas, base/prime
+  editing, gene drives) AND its governance, ethics, biosafety, biosecurity, or regulatory
+  dimension — OR a primary input to that intersection (e.g. a technical capability that drives a
+  governance debate, or a policy proposal grounded in editing capability).
+
+exclude:
+  - "pure molecular-biology mechanism papers with no ethics/governance/safety framing"
+  - "agricultural GMO papers unrelated to gene-editing governance"
+
+arxiv_categories: ["q-bio.GN", "q-bio.OT"]
+
+seed_corpus:
+  dois:
+    - "10.1126/science.aab1028"          # Baltimore et al. 2015 — A prudent path forward
+    - "10.1038/d41586-019-00726-5"       # Lander et al. 2019 — Adopt a moratorium
+    - "10.1126/science.aad5227"          # Doudna 2015 — genome editing ethics
+  arxiv_ids: []
+
+ranking:
+  embedding_model: "BAAI/bge-small-en-v1.5"
+  fresh_window_days: 90
+
+read_tiers:
+  tier1_threshold: 0.55
+  tier1_cap: 200
+  fresh_lane_quota: 30
+  tier2_band: 500
+  centrality_force: 50
+
+harvest:
+  since_year: 2012
+  snowball_rounds: 2
+  snowball_convergence_pct: 2.0
+  per_query_limit: 100

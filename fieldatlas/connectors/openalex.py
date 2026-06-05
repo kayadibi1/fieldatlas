@@ -104,7 +104,8 @@ def fetch_citing(oa_id: str, settings, limit: int = 60) -> list[RawRecord]:
 
 
 def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
-    since = scope.get("harvest", {}).get("since_year", 2018)
+    hv = scope.get("harvest", {})
+    since_date = hv.get("since_date") or f"{hv.get('since_year', 2018)}-01-01"   # delta runs set since_date
     key = settings.openalex_api_key
     out, seen = [], set()
     for q in scope.get("queries", []):
@@ -112,7 +113,7 @@ def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
         while got < limit and cursor:
             params = {
                 "search": q,
-                "filter": f"from_publication_date:{since}-01-01",
+                "filter": f"from_publication_date:{since_date}",
                 "per_page": min(100, limit - got), "cursor": cursor,
             }
             if key:

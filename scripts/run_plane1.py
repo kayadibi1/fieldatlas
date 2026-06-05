@@ -3,6 +3,7 @@
    sources_csv defaults to openalex,crossref,core. Honors $FIELDATLAS_SCOPE / $FIELDATLAS_DB.
 """
 import json
+import os
 import sys
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Windows console is cp1252
@@ -26,5 +27,5 @@ scope = load_scope()
 m = run_plane1(scope, settings(),
                sources=DEFAULT_SOURCES,
                per_query_limit=per_query_limit, acquire_tiers=(1, 2),
-               max_acquire=max_acquire)
+               max_acquire=max_acquire, delta=os.getenv("FIELDATLAS_DELTA") == "1")
 print(json.dumps(m, indent=2))

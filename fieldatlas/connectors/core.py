@@ -30,7 +30,8 @@ def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
     key = settings.core_api_key
     if not key:
         return []
-    since = scope.get("harvest", {}).get("since_year", 2018)
+    hv = scope.get("harvest", {})
+    since = int((hv.get("since_date") or "").split("-")[0]) if hv.get("since_date") else hv.get("since_year", 2018)
     headers = {"Authorization": f"Bearer {key}"}
     out, seen = [], set()
     for q in scope.get("queries", []):

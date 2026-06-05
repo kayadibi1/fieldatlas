@@ -53,7 +53,15 @@ def rank_documents(docs: list[dict], scope: dict) -> list[dict]:
     texts = [((d.get("title") or "") + ". " + (d.get("abstract") or "")).strip() for d in docs]
     doc_vecs = _norm(np.array(list(model.embed(texts)), dtype=np.float32))
     q_vec = _norm(np.array(list(model.query_embed([scope_text(scope)])), dtype=np.float32))
-    sims = (doc_vecs @ q_vec[0]).tolist()
+    sims = doc_vecs @ q_vec[0]
+    # semantic exclusion: demote docs that look like the scope's `exclude` descriptions
+    # (e.g. "AI applied to a safety-named domain" vs "AI safety as a field") — fixes false positives
+    excl = scope.get("exclude", [])
+    w = scope.get("ranking", {}).get("exclude_weight", 0.4)
+    if excl and w:
+        e_vec = _norm(np.array(list(model.query_embed([" ; ".join(excl)])), dtype=np.float32))
+        sims = sims - w * (doc_vecs @ e_vec[0])
+    sims = sims.tolist()
 
     fresh_days = scope.get("ranking", {}).get("fresh_window_days", 60)
     for d, s in zip(docs, sims):
