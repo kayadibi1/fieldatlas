@@ -88,7 +88,10 @@ const results = await pipeline(
     `Then extract a faithful structured record. The canonical_id field MUST be exactly: ${d.canonical_id}\n` +
     `Also capture (where the paper states them): relations — typed links to SPECIFIC other works ` +
     `(extends/builds_on/contradicts/replicates/compares_against/applies_to_new_domain/subsumes, with the target work) — ` +
-    `and metrics — key quantitative results (name, value, dataset, comparison).\n\n` +
+    `and metrics — key quantitative results (name, value, dataset, comparison).\n` +
+    `BE COMPLETE ON ENUMERATIONS: when the paper presents a NAMED list/taxonomy (e.g. "five hallmarks", "nine ` +
+    `capabilities", a threat taxonomy) or contrasting case studies, capture ALL items as key_claims — not just examples — ` +
+    `and include the specific NUMBERS the paper states (counts, percentages, costs, thresholds, dataset sizes) in metrics.\n\n` +
     `CRITICAL EVIDENCE RULE: for every claim you record (problem, each method, each key_claim, results, limitations), ` +
     `attach at least one evidence span whose "quote" is copied VERBATIM — an exact, word-for-word substring of the file, ` +
     `<= 40 words, with the "section" header it appears under. Do NOT paraphrase inside quotes. ` +
