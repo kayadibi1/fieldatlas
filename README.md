@@ -7,6 +7,12 @@ failing to gather the full literature.
 
 **Design spec:** [`docs/superpowers/specs/2026-06-04-fieldatlas-design.md`](docs/superpowers/specs/2026-06-04-fieldatlas-design.md)
 
+## Status and how to verify
+
+- **Tested.** `pytest` -> **25 passed**. The tests cover the real guarantees: verbatim-span matching, rejection of fabricated or too-short quotes, the all-spans-must-verify rule, the citation-lint cases, and dedup idempotency.
+- **Run on two fields.** It has executed end to end on AI-safety ∩ AI-policy and on a CRISPR cross-field proof; the SQLite corpora and the audit manifest are on disk.
+- **Adversarially validated.** [`docs/VALIDATION.md`](docs/VALIDATION.md) records six rounds of pressure-testing (robustness, depth, faithfulness, ground-truth re-read) with falsifiable before/after numbers. Read this one file if you read nothing else.
+
 ## The core idea
 
 Three jobs an LLM cannot be trusted with are moved **out of the model** into deterministic,
