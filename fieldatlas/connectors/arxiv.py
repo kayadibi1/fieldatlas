@@ -39,6 +39,27 @@ def _entry_to_record(e) -> RawRecord:
     )
 
 
+def fetch_by_ids(arxiv_ids: list[str]) -> list[RawRecord]:
+    """Fetch specific arXiv papers by id (for seed_corpus anchors). Reliable id_list lookup."""
+    out = []
+    ids = [a for a in arxiv_ids if a]
+    for i in range(0, len(ids), 50):
+        chunk = ids[i:i + 50]
+        try:
+            r = get(API, params={"id_list": ",".join(chunk), "max_results": len(chunk)}, timeout=90)
+        except Exception:
+            continue
+        try:
+            root = ET.fromstring(r.text)
+        except ET.ParseError:
+            continue
+        for e in root.findall("a:entry", NS):
+            rec = _entry_to_record(e)
+            if rec.external_ids.get("arxiv"):
+                out.append(rec)
+    return out
+
+
 def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
     cats = scope.get("arxiv_categories", ["cs.AI", "cs.CY", "cs.LG"])
     cat_clause = "(" + " OR ".join(f"cat:{c}" for c in cats) + ")"

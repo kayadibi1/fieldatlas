@@ -67,3 +67,21 @@
 - [[doi:10.48550/arxiv.2206.05862]] X-Risk Analysis for AI Research (2022) · rel=0.777 · ✓read · cited×0
 - [[doi:10.1609/aimag.v41i1.5200]] Governance, Risk, and Artificial Intelligence (2020) · rel=0.769 · abstract · cited×0
 - [[doi:10.1136/jme-2023-109702]] AI and the falling sky: interrogating X-Risk (2024) · rel=0.768 · abstract · cited×0
+
+## Central authors (by paper count in the mapped corpus)
+
+- Luciano Floridi — 9 papers
+- Gillian K. Hadfield — 7 papers
+- Helen Toner — 6 papers
+- Virginia Dignum — 6 papers
+- Yoshua Bengio — 6 papers
+- Didar Zowghi — 5 papers
+- Huw Roberts — 5 papers
+- Iason Gabriel — 5 papers
+- Markus Anderljung — 5 papers
+- Matti Minkkinen — 5 papers
+- Paolo Giudici — 5 papers
+- Ranjan Sapkota — 5 papers
+- Shahar Avin — 5 papers
+- Yi Zeng — 5 papers
+- Adebola Folorunso — 4 papers

@@ -24,6 +24,31 @@ const EXTRACTION_SCHEMA = {
     topics: { type: 'array', items: { type: 'string' } },
     is_technical: { type: 'boolean' },
     is_policy: { type: 'boolean' },
+    relations: {
+      type: 'array',
+      description: 'how this paper relates to SPECIFIC other works',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          type: { type: 'string', description: 'extends|builds_on|contradicts|replicates|compares_against|applies_to_new_domain|subsumes' },
+          target: { type: 'string', description: 'the related work (author-year or title)' },
+          note: { type: 'string' },
+        },
+        required: ['type', 'target'],
+      },
+    },
+    metrics: {
+      type: 'array',
+      description: 'key quantitative results',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: {
+          name: { type: 'string' }, value: { type: 'string' },
+          dataset: { type: 'string' }, comparison: { type: 'string' },
+        },
+        required: ['name', 'value'],
+      },
+    },
     spans: {
       type: 'array',
       items: {
@@ -60,7 +85,10 @@ const results = await pipeline(
     `You are deep-reading one paper for a literature review.\n` +
     `Use the Read tool to read the ENTIRE file at:\n  ${d.md_path}\n` +
     `Read it FULLY — if it is long, page through with offset until you have seen all of it. Do not skim.\n\n` +
-    `Then extract a faithful structured record. The canonical_id field MUST be exactly: ${d.canonical_id}\n\n` +
+    `Then extract a faithful structured record. The canonical_id field MUST be exactly: ${d.canonical_id}\n` +
+    `Also capture (where the paper states them): relations — typed links to SPECIFIC other works ` +
+    `(extends/builds_on/contradicts/replicates/compares_against/applies_to_new_domain/subsumes, with the target work) — ` +
+    `and metrics — key quantitative results (name, value, dataset, comparison).\n\n` +
     `CRITICAL EVIDENCE RULE: for every claim you record (problem, each method, each key_claim, results, limitations), ` +
     `attach at least one evidence span whose "quote" is copied VERBATIM — an exact, word-for-word substring of the file, ` +
     `<= 40 words, with the "section" header it appears under. Do NOT paraphrase inside quotes. ` +

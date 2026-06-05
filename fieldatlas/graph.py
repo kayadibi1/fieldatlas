@@ -95,6 +95,11 @@ def build_map(scope: dict, min_tier: int = 2) -> dict:
                         for m in sorted(members, key=lambda x: x["relevance"] or 0, reverse=True)],
         })
     most_cited = sorted(indeg.items(), key=lambda x: -x[1])[:10]
+    # author centrality (field-structure depth): most prolific authors among mapped docs
+    top_authors = [{"name": n, "doc_count": c} for n, c in con.execute(
+        "SELECT name, COUNT(DISTINCT canonical_id) c FROM authors WHERE canonical_id IN "
+        "(SELECT canonical_id FROM documents WHERE read_tier<=?) AND name IS NOT NULL "
+        "GROUP BY name ORDER BY c DESC, name LIMIT 20", (min_tier,))]
     con.close()
 
     map_obj = {
@@ -104,6 +109,7 @@ def build_map(scope: dict, min_tier: int = 2) -> dict:
         "n_citation_edges": len(edges),
         "clusters": sorted(clusters, key=lambda c: -c["size"]),
         "most_cited_in_corpus": [{"canonical_id": a, "in_degree": n} for a, n in most_cited],
+        "top_authors": top_authors,
     }
     (ARTIFACTS_DIR / "map.json").write_text(json.dumps(map_obj, indent=2), encoding="utf-8")
     _write_map_md(map_obj)
@@ -121,5 +127,9 @@ def _write_map_md(m: dict) -> None:
             v = "✓read" if mem["verified_read"] else "abstract"
             lines.append(f"- [[{mem['canonical_id']}]] {mem['title']} ({mem['year']}) "
                          f"· rel={mem['relevance']} · {v} · cited×{mem['cited_in_corpus']}")
+        lines.append("")
+    if m.get("top_authors"):
+        lines += ["## Central authors (by paper count in the mapped corpus)", ""]
+        lines += [f"- {a['name']} — {a['doc_count']} papers" for a in m["top_authors"][:15]]
         lines.append("")
     (ARTIFACTS_DIR / "map.md").write_text("\n".join(lines), encoding="utf-8")

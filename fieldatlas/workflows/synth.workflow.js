@@ -44,12 +44,15 @@ phase('Synthesis')
 const [report, trends] = await parallel([
   () => agent(
     `Write a rigorous "state of the field" synthesis for a literature review of the field named in the JSON's "field" value.\n${readNote}\n` +
-    `Use ONLY documents from report_corpus. Cite every paper-based claim with its id in the marker form [[id]] — never invent an id. ` +
-    `Cover: the main sub-areas (see clusters), what is established, key methods, tensions, and open problems. Return markdown.`,
+    `Cite ONLY ids present in report_corpus OR verified_corpus, in the marker form [[id]] — never invent an id. ` +
+    `Use the verified_corpus deep extractions (problem/methods/key_claims/results/data_setup/limitations/relations/metrics) for SPECIFIC grounded depth — name concrete methods, datasets, numeric results, and how papers relate/extend/contradict each other; use report_corpus for breadth. ` +
+    `Also use the citation_graph block (if present) to trace methodological lineages and name the field's hub papers. ` +
+    `Cover: main sub-areas (clusters), what is established (with specifics + evidence quality), key methods, NAMED tensions (claim vs counter-claim), and concrete open problems. Return markdown.`,
     { label: 'report', phase: 'Synthesis', schema: REPORT_SCHEMA }),
   () => agent(
     `Identify current TRENDS and CONTESTED/contentious topics in this corpus (the field is the JSON's "field" value).\n${readNote}\n` +
-    `Use year_hist for trajectory. For each trend and each controversy: a short summary and citations (ids from report_corpus).`,
+    `Use year_hist for trajectory and the citation_graph hubs for what's central. For each trend and each controversy: a short summary and citations. ` +
+    `Every controversy MUST cite >=1 paper PER SIDE of the disagreement (claim vs counter-claim); if the corpus only contains one side, say so explicitly rather than dressing a one-sided observation as a debate.`,
     { label: 'trends', phase: 'Synthesis', schema: TRENDS_SCHEMA }),
 ])
 

@@ -26,6 +26,16 @@ def harvest(scope: dict, settings, sources: list[str] | None = None,
         per_source[name] = {"raw": len(recs)}
         all_records.extend(recs)
 
+    # citation snowball: seed-fetch (canon anchors) + backward/forward expansion (recall depth)
+    snow_curve = []
+    try:
+        from . import snowball
+        extra, snow_curve = snowball.expand(all_records, scope, settings)
+        per_source["snowball"] = {"raw": len(extra)}
+        all_records.extend(extra)
+    except Exception as e:
+        per_source["snowball"] = {"raw": 0, "error": str(e)[:200]}
+
     docs = dedup(all_records)
 
     # capture OpenAlex backward-citation edges (raw ids) for the knowledge graph
@@ -51,6 +61,7 @@ def harvest(scope: dict, settings, sources: list[str] | None = None,
         "documents_with_abstract": sum(1 for d in docs if d.get("abstract")),
         # F3 honesty: connectors that errored (quota/auth/persistent-429) — recall may be truncated
         "source_errors": {n: v["error"] for n, v in per_source.items() if "error" in v},
+        "snowball_convergence": snow_curve,
         "citation_edges_openalex": edges_raw,
     }
     return docs, manifest

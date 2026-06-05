@@ -52,6 +52,57 @@ def _to_record(w: dict) -> RawRecord:
     )
 
 
+def _fetch_filter(filter_str: str, settings, per_page: int = 100, max_results: int = 200) -> list[RawRecord]:
+    """Generic OpenAlex works fetch by a filter string (date-exempt). For snowball/seed fetch."""
+    key = settings.openalex_api_key
+    out, seen, cursor, got = [], set(), "*", 0
+    while got < max_results and cursor:
+        params = {"filter": filter_str, "per_page": min(per_page, max_results - got), "cursor": cursor}
+        if key:
+            params["api_key"] = key
+        try:
+            data = get(API, params=params).json()
+        except Exception:
+            break
+        results = data.get("results", [])
+        if not results:
+            break
+        for w in results:
+            rec = _to_record(w)
+            wid = rec.external_ids.get("openalex")
+            if wid and wid not in seen:
+                seen.add(wid)
+                out.append(rec)
+        got += len(results)
+        cursor = (data.get("meta") or {}).get("next_cursor")
+    return out
+
+
+def _chunks(seq, n):
+    for i in range(0, len(seq), n):
+        yield seq[i:i + n]
+
+
+def fetch_by_dois(dois: list[str], settings) -> list[RawRecord]:
+    out = []
+    for ch in _chunks([d for d in dois if d], 50):
+        out += _fetch_filter("doi:" + "|".join(ch), settings, max_results=len(ch) + 5)
+    return out
+
+
+def fetch_by_openalex_ids(oa_ids: list[str], settings) -> list[RawRecord]:
+    short = [i.rsplit("/", 1)[-1] for i in oa_ids if i]   # accept full URLs or bare W-ids
+    out = []
+    for ch in _chunks(short, 50):
+        out += _fetch_filter("openalex_id:" + "|".join(ch), settings, max_results=len(ch) + 5)
+    return out
+
+
+def fetch_citing(oa_id: str, settings, limit: int = 60) -> list[RawRecord]:
+    """Forward citations: works that cite oa_id."""
+    return _fetch_filter(f"cites:{oa_id.rsplit('/', 1)[-1]}", settings, max_results=limit)
+
+
 def search(scope: dict, settings, limit: int = 200) -> list[RawRecord]:
     since = scope.get("harvest", {}).get("since_year", 2018)
     key = settings.openalex_api_key

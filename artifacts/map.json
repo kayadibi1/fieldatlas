@@ -12643,5 +12643,87 @@
       "canonical_id": "doi:10.1016/j.ijinfomgt.2019.08.002",
       "in_degree": 8
     }
+  ],
+  "top_authors": [
+    {
+      "name": "Luciano Floridi",
+      "doc_count": 9
+    },
+    {
+      "name": "Gillian K. Hadfield",
+      "doc_count": 7
+    },
+    {
+      "name": "Helen Toner",
+      "doc_count": 6
+    },
+    {
+      "name": "Virginia Dignum",
+      "doc_count": 6
+    },
+    {
+      "name": "Yoshua Bengio",
+      "doc_count": 6
+    },
+    {
+      "name": "Didar Zowghi",
+      "doc_count": 5
+    },
+    {
+      "name": "Huw Roberts",
+      "doc_count": 5
+    },
+    {
+      "name": "Iason Gabriel",
+      "doc_count": 5
+    },
+    {
+      "name": "Markus Anderljung",
+      "doc_count": 5
+    },
+    {
+      "name": "Matti Minkkinen",
+      "doc_count": 5
+    },
+    {
+      "name": "Paolo Giudici",
+      "doc_count": 5
+    },
+    {
+      "name": "Ranjan Sapkota",
+      "doc_count": 5
+    },
+    {
+      "name": "Shahar Avin",
+      "doc_count": 5
+    },
+    {
+      "name": "Yi Zeng",
+      "doc_count": 5
+    },
+    {
+      "name": "Adebola Folorunso",
+      "doc_count": 4
+    },
+    {
+      "name": "Allan Dafoe",
+      "doc_count": 4
+    },
+    {
+      "name": "Bernd Carsten Stahl",
+      "doc_count": 4
+    },
+    {
+      "name": "Dan Hendrycks",
+      "doc_count": 4
+    },
+    {
+      "name": "Daniel Schiff",
+      "doc_count": 4
+    },
+    {
+      "name": "Dawn Song",
+      "doc_count": 4
+    }
   ]
 }

@@ -6,6 +6,7 @@ build citation subgraph -> write the Plane-2 deep-read queue -> emit a run manif
 from __future__ import annotations
 
 import json
+from collections import Counter
 from datetime import datetime
 
 from . import db
@@ -65,6 +66,22 @@ def run_plane1(scope, settings, sources=None, per_query_limit=None,
     # 3-4. rank + tiers
     ranked = rank_documents(docs, scope)
     tier_stats = assign_tiers(ranked, scope)
+    # citation-centrality: force the most-cited in-corpus nodes into Tier-1 so the field's
+    # heavily-cited anchors (which the snowball pulls in) get deep-read, not left at abstract level
+    oa2can = {v: c for v, c in con.execute("SELECT value, canonical_id FROM external_ids WHERE scheme='openalex'")}
+    indeg = Counter()
+    for _citing, ref in edges_raw:
+        b = oa2can.get(norm_openalex(ref))
+        if b:
+            indeg[b] += 1
+    force_n = scope.get("read_tiers", {}).get("centrality_force", 60)
+    top_cited = {cid for cid, _ in indeg.most_common(force_n)}
+    n_forced = 0
+    for d in ranked:
+        if d["canonical_id"] in top_cited and d.get("read_tier") != 1:
+            d["read_tier"] = 1
+            n_forced += 1
+    tier_stats["centrality_forced"] = n_forced
     _persist_ranking(con, ranked)
     n_edges = _persist_citation_edges(con, edges_raw)
 
@@ -76,6 +93,7 @@ def run_plane1(scope, settings, sources=None, per_query_limit=None,
         return bool(ids.get("doi") or ids.get("arxiv") or d.get("oa_pdf_url"))
 
     to_read = [d for d in ranked if d.get("read_tier") in acquire_tiers and _acquirable(d)]
+    to_read.sort(key=lambda d: (d.get("read_tier", 9), -(d.get("relevance") or 0)))  # Tier-1 (incl forced canon) first
     if max_acquire:
         to_read = to_read[:max_acquire]
     acq = {"fetched": 0, "metadata_only": 0, "parsed": 0, "parse_failed": 0}

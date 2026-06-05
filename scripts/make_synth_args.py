@@ -21,7 +21,11 @@ for r in con.execute(
     verified.append({"id": r[0], "title": r[2], "year": r[3],
                      "problem": f.get("problem"), "methods": f.get("methods", []),
                      "key_claims": f.get("key_claims", []), "limitations": f.get("limitations"),
-                     "topics": f.get("topics", [])})
+                     "topics": f.get("topics", []),
+                     # full reading depth — previously dropped, leaving synthesis abstract-thin
+                     "results": f.get("results"), "contributions": f.get("contributions", []),
+                     "data_setup": f.get("data_setup"), "relation_to_field": f.get("relation_to_field"),
+                     "relations": f.get("relations", []), "metrics": f.get("metrics", [])})
 
 report_corpus = []
 for r in con.execute(
@@ -44,8 +48,21 @@ if mp.exists():
         ids = [m.get("canonical_id") for m in c.get("members", []) if m.get("canonical_id")]
         clusters.append({"label": c.get("label", ""), "ids": ids})
 
+# citation graph: in-corpus hubs (most cited) + edges among report papers (for lineage tracing)
+cg = {"most_cited": [], "edges": []}
+for cid, deg in con.execute(
+        "SELECT cited_id, COUNT(*) d FROM citations GROUP BY cited_id ORDER BY d DESC LIMIT 15"):
+    t = con.execute("SELECT title, year FROM documents WHERE canonical_id=?", (cid,)).fetchone()
+    if t:
+        cg["most_cited"].append({"id": cid, "title": t[0], "year": t[1], "in_degree": deg})
+report_ids = {d["id"] for d in report_corpus}
+for a, b in con.execute("SELECT citing_id, cited_id FROM citations"):
+    if a in report_ids and b in report_ids:
+        cg["edges"].append([a, b])
+
 con.close()
 args = {"field": scope.get("field"), "report_corpus": report_corpus,
-        "verified_corpus": verified, "clusters": clusters, "year_hist": year_hist}
+        "verified_corpus": verified, "clusters": clusters, "year_hist": year_hist,
+        "citation_graph": cg}
 (WORK_DIR / "synth_args.json").write_text(json.dumps(args, indent=2), encoding="utf-8")
 print(f"verified_corpus={len(verified)} report_corpus={len(report_corpus)} clusters={len(clusters)}")
