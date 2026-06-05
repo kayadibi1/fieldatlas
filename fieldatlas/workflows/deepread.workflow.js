@@ -5,6 +5,7 @@ export const meta = {
   description: 'Deep-read Tier-1 papers, extract evidence-grounded records, adversarial faithfulness check',
   phases: [
     { title: 'Read', detail: 'one reader agent per paper; verbatim evidence spans required' },
+    { title: 'Completeness', detail: 'critic re-reads and recovers relevant specifics the read missed' },
     { title: 'Adversarial check', detail: 'skeptic verifies the extraction is faithful' },
   ],
 }
@@ -75,6 +76,41 @@ const _a = (typeof args === 'string' ? JSON.parse(args) : args) || []
 const safeName = (s) => s.replace(/[^A-Za-z0-9._-]/g, '_')
 // Two arg forms: an array of {canonical_id, md_path}, or {dir, ids:[canonical_id,...]}
 // (md_path reconstructed from dir + safeName(id) + '.md', matching acquire.safe_name).
+const MISSED_SCHEMA = {
+  type: 'object', additionalProperties: false,
+  properties: {
+    missed_claims: { type: 'array', items: { type: 'string' },
+      description: 'relevant claims/enumeration-items/cases the extraction omitted' },
+    missed_metrics: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: { name: { type: 'string' }, value: { type: 'string' },
+          dataset: { type: 'string' }, comparison: { type: 'string' } },
+        required: ['name', 'value'],
+      },
+    },
+    missed_spans: {
+      type: 'array',
+      items: {
+        type: 'object', additionalProperties: false,
+        properties: { field: { type: 'string' }, quote: { type: 'string' }, section: { type: 'string' } },
+        required: ['field', 'quote', 'section'],
+      },
+    },
+  },
+  required: ['missed_claims', 'missed_spans'],
+}
+
+function merge(extraction, m) {
+  return {
+    ...extraction,
+    key_claims: [...(extraction.key_claims || []), ...(m.missed_claims || [])],
+    metrics: [...(extraction.metrics || []), ...(m.missed_metrics || [])],
+    spans: [...(extraction.spans || []), ...(m.missed_spans || [])],
+  }
+}
+
 const docs = Array.isArray(_a) ? _a
   : (_a.ids ? _a.ids.map((id) => ({ canonical_id: id, md_path: `${_a.dir}\\${safeName(id)}.md` })) : [])
 phase('Read')
@@ -100,13 +136,25 @@ const results = await pipeline(
     { label: `read:${d.canonical_id}`, phase: 'Read', schema: EXTRACTION_SCHEMA }
   ),
   (extraction, d) => agent(
+    `You are a COMPLETENESS critic for a literature-review extraction (the OMISSION guard).\n` +
+    `Re-read the ENTIRE paper at:\n  ${d.md_path}\n` +
+    `Current extraction:\n${JSON.stringify({ problem: extraction.problem, methods: extraction.methods, key_claims: extraction.key_claims, metrics: extraction.metrics, limitations: extraction.limitations }).slice(0, 6000)}\n\n` +
+    `Find RELEVANT specifics the extraction MISSED that a literature review should know: COMPLETE enumerations ` +
+    `(ALL items of any named list/taxonomy the paper presents, not just examples), exact numbers/thresholds/dataset ` +
+    `sizes/percentages, contrasting or secondary case studies, and explicit disagreements with other work. ` +
+    `For EACH missed item provide missed_claims and/or missed_metrics AND a missed_span with a VERBATIM quote ` +
+    `(exact substring of the file, <=40 words) + its section. Only include items genuinely relevant to understanding ` +
+    `or comparing this paper — skip trivia. If nothing relevant is missing, return empty arrays.`,
+    { label: `complete:${d.canonical_id}`, phase: 'Completeness', schema: MISSED_SCHEMA }
+  ).then((m) => merge(extraction, m)),
+  (merged, d) => agent(
     `Adversarially verify a deep-read extraction against its source paper.\n` +
     `Read the file at: ${d.md_path}\n\n` +
-    `Extraction to check:\n${JSON.stringify(extraction).slice(0, 6000)}\n\n` +
+    `Extraction to check:\n${JSON.stringify(merged).slice(0, 6000)}\n\n` +
     `Decide: are the recorded claims faithful to the paper? Flag any overclaim, invented result, ` +
     `or dropped limitation. Be skeptical; default to faithful=false if claims exceed what the paper supports.`,
     { label: `check:${d.canonical_id}`, phase: 'Adversarial check', schema: VERDICT_SCHEMA }
-  ).then((v) => ({ ...extraction, canonical_id: d.canonical_id, adversarial: v }))
+  ).then((v) => ({ ...merged, canonical_id: d.canonical_id, adversarial: v }))
 )
 
 return results.filter(Boolean)
