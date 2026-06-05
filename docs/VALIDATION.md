@@ -102,8 +102,17 @@ arXiv/journals/CSET/conf), blind to the system.
   52 low.
 - **Single consistent weakness = thinness, not error:** the system captures a paper's core
   structure and claims faithfully but drops the long tail — specific *numbers* and complete
-  *enumerations* (e.g. a paper's "five hallmarks", a secondary contrast case). Addressed via the
-  new `metrics`/`relations` fields + a deep-read prompt that now requires enumerative completeness.
+  *enumerations* (e.g. a paper's "five hallmarks", a secondary contrast case).
+
+**Fix — the omission guard (completeness critic).** The verifier guards *fabrication* (F1) but
+nothing guarded *omission*. Added a third deep-read stage (read → **completeness** → adversarial):
+a critic re-reads the full text and recovers relevant missed specifics, EACH with a verbatim span,
+merged into the extraction — so the additions pass the same deterministic verifier (completeness
+up, F1 intact). **Proven on the 3 papers the validation flagged:** regulatory-capture claims
+8→31 / metrics 0→12 / verified spans 26→56 (five hallmarks + Bootleggers-and-Baptists recovered;
+non-verbatim quotes correctly dropped); Concrete-Problems-Revisited 8→21 (IBM-Watson success case);
+Frontier-what-form 8→46 (full adversarial-threat taxonomy). The existing 144 extractions predate
+this stage and would gain it on a re-read.
 
 ---
 
