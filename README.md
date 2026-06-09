@@ -1,5 +1,7 @@
 # FieldAtlas
 
+[![ci](https://github.com/kayadibi1/fieldatlas/actions/workflows/ci.yml/badge.svg)](https://github.com/kayadibi1/fieldatlas/actions/workflows/ci.yml)
+
 A robust, reliable, automated **literature-review + research-ideation** system for the
 **AI-safety ∩ AI-policy** field. Built to fix three real failure modes of naive LLM
 "research": (F1) claiming to read what it didn't, (F2) fabricating references, (F3)
@@ -13,6 +15,19 @@ failing to gather the full literature.
 - **Run on two fields.** It has executed end to end on AI-safety ∩ AI-policy and on a CRISPR cross-field proof; the SQLite corpora and the audit manifest are on disk.
 - **Adversarially validated.** [`docs/VALIDATION.md`](docs/VALIDATION.md) records six rounds of pressure-testing (robustness, depth, faithfulness, ground-truth re-read) with falsifiable before/after numbers. Read this one file if you read nothing else.
 
+### Validation highlights (6 rounds)
+
+| What was tested | Result |
+|---|---|
+| Ground-truth: independent expert re-read of 15 papers, blind to the system | **15/15 faithful extractions, 0 fabrications, 0 material errors** |
+| Synthesis faithfulness: agents re-read sources and checked specific claims | 23/36 findings confirmed sound; no misrepresentation found |
+| Corpus depth after snowball fix | 2,977 → 5,310 docs; citation edges 791 → 14,330; earliest work 2018 → 1911 |
+| Cross-field generalization (CRISPR gene-editing governance) | Worked first try: 4,609 docs, ranking correct, no AI-specific assumptions leaked |
+| Robustness (Round 1) | 44 findings, 16 high/critical: all fixed (idempotency, crash guards, XSS, encoding) |
+| Extraction completeness | Faithful but thin on specifics → completeness critic added (verified spans 26→56 on flagged papers) |
+
+Full details with before/after numbers: [`docs/VALIDATION.md`](docs/VALIDATION.md)
+
 ## The core idea
 
 Three jobs an LLM cannot be trusted with are moved **out of the model** into deterministic,
@@ -20,19 +35,19 @@ auditable Python that sits on the boundary every model output must cross:
 
 | Failure | Guardrail (deterministic) | Code |
 |---|---|---|
-| F1 fake reading | **Evidence-span verifier** — every recorded claim carries a verbatim quote that is string-matched back into the parsed full text; any miss rejects the extraction | `fieldatlas/verify.py` |
-| F2 fabricated refs | **Citation linter** — outputs may cite only `[[canonical_id]]`s that exist in the corpus; grounded claims need a verified span | `fieldatlas/lint.py` |
-| F3 incomplete gathering | **Multi-source harvest + dedup + recall manifest** — real scholarly APIs, cross-source dedup, completeness shown as data | `fieldatlas/harvest.py`, `dedup.py` |
+| F1 fake reading | **Evidence-span verifier**: every recorded claim carries a verbatim quote that is string-matched back into the parsed full text; any miss rejects the extraction | `fieldatlas/verify.py` |
+| F2 fabricated refs | **Citation linter**: outputs may cite only `[[canonical_id]]`s that exist in the corpus; grounded claims need a verified span | `fieldatlas/lint.py` |
+| F3 incomplete gathering | **Multi-source harvest + dedup + recall manifest**: real scholarly APIs, cross-source dedup, completeness shown as data | `fieldatlas/harvest.py`, `dedup.py` |
 
 The LLM only reads, synthesizes, and ideates over **already-verified** inputs.
 
 ## Two planes
 
-- **Plane 1 — deterministic data layer** (this package, Python + SQLite, no LLM):
+- **Plane 1: deterministic data layer** (this package, Python + SQLite, no LLM):
   harvest → dedup → rank (local ONNX embeddings) → acquire OA full text → parse →
   **verify** extractions → **lint** artifacts → manifest.
-- **Plane 2 — reasoning layer** (Claude Code workflows in `fieldatlas/workflows/`):
-  deep-read+extract, synthesis, trends, and the multi-agent idea engine — all gated by Plane 1.
+- **Plane 2: reasoning layer** (Claude Code workflows in `fieldatlas/workflows/`):
+  deep-read+extract, synthesis, trends, and the multi-agent idea engine: all gated by Plane 1.
 
 ## Setup
 
@@ -83,7 +98,7 @@ verified-vs-caught evidence spans and NOT-READ flags), **Map** (clusters + citat
 .venv\Scripts\python scripts\build_html.py     # -> artifacts/report.html
 ```
 
-A single self-contained `artifacts/report.html` (no server, no JS deps) — overview metrics,
+A single self-contained `artifacts/report.html` (no server, no JS deps): overview metrics,
 the full synthesis, trends/controversy, ranked ideas, the cluster map, and the audit
 manifest, with clickable citation chips (DOI/arXiv/OpenAlex). Double-click to open or share.
 
@@ -106,12 +121,12 @@ manifest, with clickable citation chips (DOI/arXiv/OpenAlex). Double-click to op
 Full text is obtained only through sanctioned routes; paywalled items with no legal copy are
 honestly marked **NOT-READ** and contribute no deep claims.
 
-1. **Open access** (default) — arXiv, CORE, Unpaywall/OpenAlex OA locations. High coverage in
+1. **Open access** (default): arXiv, CORE, Unpaywall/OpenAlex OA locations. High coverage in
    this arXiv-heavy field.
-2. **Manual drop** — `scripts/add_manual_pdf.py <id> <pdf>` registers a PDF you obtained through
+2. **Manual drop**: `scripts/add_manual_pdf.py <id> <pdf>` registers a PDF you obtained through
    your own individual institutional access (license-permitted individual reading; the tool only
    does the analysis). For the handful of must-read paywalled papers.
-3. **Publisher TDM API** (`fieldatlas/tdm.py`) — the sanctioned automated route for institutional
+3. **Publisher TDM API** (`fieldatlas/tdm.py`): the sanctioned automated route for institutional
    scale. Inert until `ELSEVIER_API_KEY`/`ELSEVIER_INSTTOKEN`/`WILEY_TDM_TOKEN` are set in `.env`,
    which requires the institution (e.g. JHU Library) to confirm TDM entitlement and issue tokens.
 
@@ -130,4 +145,4 @@ prohibit and can get the whole institution's access blocked). Use the TDM API in
 Raise `per_query_limit` and `read_tiers.tier1_cap` in `scope/ai_safety_policy.yaml`; add the
 S2 key; enable arXiv via OAI-PMH bulk; load the OpenAlex CC0 snapshot locally to avoid the
 freemium budget; add the grey-lit adapters (§5.3/§5.5). The pipeline, verifier, and linter
-are unchanged — only the volume scales.
+are unchanged: only the volume scales.
