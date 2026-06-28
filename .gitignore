@@ -23,3 +23,6 @@ desktop.ini
 
 # stray browser-tool artifacts
 .playwright-mcp/
+
+# internal design scaffolding (not product)
+docs/superpowers/

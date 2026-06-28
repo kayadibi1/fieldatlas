@@ -7,7 +7,6 @@ A robust, reliable, automated **literature-review + research-ideation** system f
 "research": (F1) claiming to read what it didn't, (F2) fabricating references, (F3)
 failing to gather the full literature.
 
-**Design spec:** [`docs/superpowers/specs/2026-06-04-fieldatlas-design.md`](docs/superpowers/specs/2026-06-04-fieldatlas-design.md)
 
 ## Status and how to verify
 
